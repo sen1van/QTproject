@@ -1,10 +1,13 @@
 import sys
 from random import randint
 from PyQt5 import uic
-from PyQt5.QtGui import QPixmap,    QIcon 
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QApplication, QPushButton, QWidget, QLabel
 from PyQt5.QtCore import *
+from PyQt5.QtMultimedia import *
 
+from playsound import playsound
+import threading
 
 class Example2(QWidget):
     def __init__(self):
@@ -86,7 +89,7 @@ class Example2(QWidget):
             25,self.player.sprite_size[1])
         self.rocket.move(-300,-300)
         
-        self.rocket_in_game = True
+        self.rocket_in_game = False
 
         self.degub_collision = QLabel(self)
         self.degub_collision.setPixmap(QPixmap("debug_collision.png"))
@@ -98,7 +101,7 @@ class Example2(QWidget):
         # найстройки игры
         self.JUMP_POWER = -3.4
         self.game_speed = 1
-        self.SECRET_AVAILABLE = True
+        self.SECRET_AVAILABLE = False
         self.is_game_end = True
         
         # интерфейс проигрыша
@@ -116,9 +119,15 @@ class Example2(QWidget):
         self.game_title.setScaledContents(True)
 
         self.secret_button = QPushButton("",self)
-        self.secret_button.resize(300,150)
+        self.secret_button.resize(10,10)
         self.secret_button.setFlat(True)
         self.secret_button.clicked.connect(self.game_start_secret)
+        
+
+        self.score = QLabel("Счет: 0", self)
+        self.score.setFont(QFont("Arial",23))
+        self.score.score = 0
+        self.score.resize(10000000,30)
         # таймер, он тут (1000 / 6) кадров в сек
         self.runner_timer = QTimer()
         self.runner_timer.timeout.connect(self.run)
@@ -130,18 +139,29 @@ class Example2(QWidget):
                 if (self.player.collision_width/2 + platform.size[0]/2) * -1 < ((platform.x() + (platform.size[0]/2)) - ((self.player.x() + self.player.collision_offset[0]) + (self.player.collision_width/2))) < (self.player.collision_width/2 + platform.size[0]/2):
                     if platform.y() + (platform.size[1]/2) > (self.player.y() + self.player.collision_offset[1] + self.COLLISION_HEIGHT) > platform.y():
                         if self.player.velocity[1] > 0.1 and not platform.is_break:
-                            self.player.velocity[1] = self.JUMP_POWER
+                            if platform.breakable and randint(1,3) == 1:
+                                pass
+                            else:
+                                self.player.velocity[1] = self.JUMP_POWER        
                             if platform.has_jump_pad:
                                 if (self.player.collision_width/2 + 15) * -1 < ((platform.x() + (platform.size[0]/2)) - ((self.player.x() + self.player.collision_offset[0]) + (self.player.collision_width/2))) < (self.player.collision_width/2 + 15):
                                     self.player.velocity[1] = self.JUMP_POWER * 2
-                                    print("BIG_JUMP")
-                            if platform.has_rocket:
+                                    playsound('jump_pad.wav',False)
+                            elif platform.has_rocket:
                                 if (self.player.collision_width/2 + 15) * -1 < ((platform.x() + (platform.size[0]/2)) - ((self.player.x() + self.player.collision_offset[0]) + (self.player.collision_width/2))) < (self.player.collision_width/2 + 15):
                                     self.player.velocity[1] = self.JUMP_POWER * 6
                                     platform.has_rocket = False
                                     self.rocket_in_game = False
                                     self.rocket.move(-300,-300)
-                                    print("VERY_BIG_JUMP")
+                                    playsound('rocket.wav',False)
+                            elif platform.breakable:
+                                playsound('jump3.wav',False)
+                            else:
+                                if self.SECRET_AVAILABLE:
+                                    playsound(f'secret_jump.wav',False)
+                                else:
+                                    playsound(f'jump{randint(1,2)}.wav',False)
+                                
                             if platform.breakable:
                                 platform.is_break = True
                                 platform.hide()
@@ -156,16 +176,18 @@ class Example2(QWidget):
                             int(platform.x() + platform.size[0]/2 - 16), int(platform.y_position)-self.player.sprite_size[1])
                     platform.move(platform.x(), int(platform.y_position))
                 if platform.y() > 900:
+                    self.score.score += 1
+                    self.score.setText("Счёт: " + str(self.score.score))
                     platform.is_break = False
                     platform.y_position = -30 + randint(-1, 1)
-                    platform.breakable = randint(0, 1)
+                    platform.breakable = (randint(0, 3) == 0)
 
                     if platform.has_rocket and self.rocket_in_game:
                         self.rocket_in_game = False
                         platform.has_rocket = False
                         self.rocket.move(-300,-300)
                     elif not self.rocket_in_game and not platform.breakable:
-                        if randint(1,20) == 1:
+                        if randint(1,30) == 1:
                             self.rocket_in_game = True
                             platform.has_rocket = True
                     
@@ -175,7 +197,7 @@ class Example2(QWidget):
                         platform.has_jump_pad = False
                         self.jump_pad.move(-300, -300)
                     elif not self.jump_pad_in_game and not platform.breakable and not platform.has_rocket:
-                        if randint(1, 10) == 1:
+                        if randint(1, 6) == 1:
                             self.jump_pad_in_game = True
                             platform.has_jump_pad = True
 
@@ -247,6 +269,8 @@ class Example2(QWidget):
         self.game_title.hide()
         self.player.velocity = [0, 0]
         self.player.position = [225, 400]
+        self.score.score = 0
+        self.score.setText("Счёт: 0")
         for i in range(10):
             self.platforms[i].setPixmap(self.default_platform)
             self.platforms[i].has_rocket = False
@@ -261,6 +285,10 @@ class Example2(QWidget):
         self.game_title.show()
         for i in range(10):
             self.platforms[i].hide()
+        self.jump_pad_in_game = False
+        self.rocket_in_game = False
+        self.rocket.move(-300,-300)
+        self.jump_pad.move(-300,-300)
         self.player.move(225,400)
         self.start_button.move(150,580)
         self.start_button.show()
