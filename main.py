@@ -22,7 +22,7 @@ class Example2(QWidget):
         for i in range(3):
             self.backgrounds += [QLabel(self)]
             self.backgrounds[i].setPixmap(
-                QPixmap("textures\\background\\background.png"))
+                QPixmap("textures/background/background.png"))
             self.backgrounds[i].move(0, i * (-1800))
             self.backgrounds[i].y_position = i * (-900-450)
 
@@ -30,7 +30,7 @@ class Example2(QWidget):
         self.jump_pad_in_game = False
 
         self.jump_pad = QLabel(self)
-        self.jump_pad.setPixmap(QPixmap("textures\\power_ups\\jump_pad"))
+        self.jump_pad.setPixmap(QPixmap("textures/power_ups/jump_pad"))
         self.jump_pad.setScaledContents(True)
         self.jump_pad.resize(
             35, 15)
@@ -40,11 +40,11 @@ class Example2(QWidget):
         # self.rocket.move(
         #     -300, -300)
         # платформы
-        self.break_platform = QPixmap("textures\\platforms\\break_platform")
+        self.break_platform = QPixmap("textures/platforms/break_platform")
         self.default_platform = QPixmap(
-            "textures\\platforms\\default_platform")
+            "textures/platforms/default_platform")
         self.secret_platform = QPixmap(
-            "textures\\platforms\\secret_platform.png")
+            "textures/platforms/secret_platform.png")
         self.platforms = []
         for i in range(10):
             self.platforms += [QLabel(self)]
@@ -66,13 +66,13 @@ class Example2(QWidget):
         self.GRAVITY = 0.02
         self.SPEED = 1
         self.player = QLabel(self)
-        self.player_normal = QPixmap("textures\\player\\player.png")
-        self.player_mirror = QPixmap("textures\\player\\player_mirror.png")
+        self.player_normal = QPixmap("textures/player/player.png")
+        self.player_mirror = QPixmap("textures/player/player_mirror.png")
 
         self.player_normal_secret = QPixmap(
-            "textures\\player\\secret\\secret_player.png")
+            "textures/player/secret/secret_player.png")
         self.player_mirror_secret = QPixmap(
-            "textures\\player\\secret\\secret_player_mirror.png")
+            "textures/player/secret/secret_player_mirror.png")
 
         self.player.collision_offset = [30, 80]
         self.player.mirrored = False
@@ -88,7 +88,7 @@ class Example2(QWidget):
 
         self.degub_collision = QLabel(self)
         self.degub_collision.setPixmap(
-            QPixmap("textures\\debug_collision.png"))
+            QPixmap("textures/debug_collision.png"))
         self.degub_collision.setScaledContents(True)
         self.degub_collision.resize(
             self.player.collision_size[0], self.player.collision_size[1])
@@ -97,7 +97,7 @@ class Example2(QWidget):
 
         # rocket
         self.rocket = QLabel(self)
-        self.rocket.setPixmap(QPixmap("textures\\power_ups\\rocket.png"))
+        self.rocket.setPixmap(QPixmap("textures/power_ups/rocket.png"))
         self.rocket.setScaledContents(True)
         self.rocket.resize(
             25, self.player.sprite_size[1])
@@ -114,12 +114,12 @@ class Example2(QWidget):
         self.start_button = QPushButton("", self)
         self.start_button.resize(300, 150)
         self.start_button.setFlat(True)
-        self.start_button.setIcon(QIcon('textures\\ui\\play_button.png'))
+        self.start_button.setIcon(QIcon('textures/ui/play_button.png'))
         self.start_button.setIconSize(QSize(300, 150))
         self.start_button.clicked.connect(self.game_start)
 
         self.game_title = QLabel(self)
-        self.game_title.setPixmap(QPixmap("textures\\ui\\doodle_jump_python"))
+        self.game_title.setPixmap(QPixmap("textures/ui/doodle_jump_python"))
         self.game_title.resize(500, 200)
         self.game_title.move(50, 100)
         self.game_title.setScaledContents(True)
@@ -155,17 +155,17 @@ class Example2(QWidget):
 
                         if platform.breakable and randint(1, 3) == 1:
                             playsound(
-                                'sounds\\jump_breakable\\break.wav', False)
+                                'sounds/jump_breakable/break.wav', False)
                         else:
                             self.player.velocity[1] = self.JUMP_POWER
                             if platform.has_jump_pad:
                                 if collide_2_lines(platform.x()+15, platform.size[0]-30, collision_pos[0], self.player.collision_size[0]):
                                     self.player.velocity[1] = self.JUMP_POWER * 2
                                     playsound(
-                                        f'sounds\\power_ups\\jump_pad.wav', False)
+                                        f'sounds/power_ups/jump_pad.wav', False)
                                 else:
                                     playsound(
-                                        f'sounds\\jump_default\\jump{randint(1,2)}.wav', False)
+                                        f'sounds/jump_default/jump{randint(1,2)}.wav', False)
                             elif platform.has_rocket:
                                 if collide_2_lines(platform.x()+15, platform.size[0]-30, collision_pos[0], self.player.collision_size[0]):
                                     self.player.velocity[1] = self.JUMP_POWER * 6
@@ -173,20 +173,20 @@ class Example2(QWidget):
                                     self.rocket_in_game = False
                                     self.rocket.move(-300, -300)
                                     playsound(
-                                        'sounds\\power_ups\\rocket.wav', False)
+                                        'sounds/power_ups/rocket.wav', False)
                                 else:
                                     playsound(
-                                        f'sounds\\jump_default\\jump{randint(1,2)}.wav', False)
+                                        f'sounds/jump_default/jump{randint(1,2)}.wav', False)
                             elif platform.breakable:
                                 playsound(
-                                    'sounds\\jump_breakable\\not_break.wav', False)
+                                    'sounds/jump_breakable/not_break.wav', False)
                             else:
                                 if self.secret_avaible:
                                     playsound(
-                                        f'sounds\\jump_default\\secret_jump.wav', False)
+                                        f'sounds/jump_default/secret_jump.wav', False)
                                 else:
                                     playsound(
-                                        f'sounds\\jump_default\\jump{randint(1,2)}.wav', False)
+                                        f'sounds/jump_default/jump{randint(1,2)}.wav', False)
 
                         if platform.breakable:
                             platform.is_break = True
@@ -268,7 +268,8 @@ class Example2(QWidget):
             self.game_end()
 
     def mouseMoveEvent(self, event):
-        self.player.position[0] = event.x() - self.player.collision_size[0]/2 - self.player.collision_offset[0]
+        self.player.position[0] = event.x(
+        ) - self.player.collision_size[0]/2 - self.player.collision_offset[0]
         if self.last_player_pos - self.player.position[0] > 1.8:
             if self.secret_avaible:
                 self.player.setPixmap(self.player_normal_secret)
